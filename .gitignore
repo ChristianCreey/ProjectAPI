@@ -6,3 +6,5 @@ __pycache__/
 
 # Virtual environments
 .venv/
+Dockerfile
+docker-compose.yml
