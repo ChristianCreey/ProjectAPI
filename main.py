@@ -6,6 +6,8 @@ from pydantic import BaseModel, Field
 from typing import Optional
 from user_jwt import createToken, validateToken
 from fastapi.security import HTTPBearer
+from db.movie_db import Session, engine, Base
+from models.movie_models import Movie
 
 
 
@@ -14,6 +16,8 @@ app = FastAPI(
     description='Una api en los primeros pasos',
     version='0.0.1',
 )
+
+Base.metadata.create_all(bind=engine)
 
 #security = HTTPBearer()
 
@@ -28,7 +32,7 @@ class BearerJWT(HTTPBearer):
  
 class User(BaseModel):
     email: str = Field(default='correo@email.com')
-    password: str = Field(default=**********)
+    password: str = Field(default="**********")
 
 class Movie(BaseModel):
     id: Optional[int] = None
@@ -59,10 +63,10 @@ movies = [
 
 @app.post('/login', tags=['autentication'])
 def login(user: User):
-    if user.email == 'ccreey@outlook.es' and user.password == '12345':
-        token: str = createToken(user.model_dump()) #user.dict() ya no es válido en las versiones recientes de Pydantic (usar model_dump() en Pydantic v2).
-        #print(token)
-        #print(user)
+    if user.email == "ccreey@outlook.es" and user.password == "12345":
+        token: str = createToken(user.dict()) #user.dict() ya no es válido en las versiones recientes de Pydantic (usar model_dump() en Pydantic v2).
+        print(token)
+        print(user)
         return JSONResponse(content={'access_token': token})
     raise HTTPException(status_code=401, detail="Credenciales incorrectas")
 
@@ -73,7 +77,7 @@ def read_root():
 
 @app.get('/movies', tags=['Movies'], dependencies=[Depends(BearerJWT())]) #colocar en las funciones que queramos que este autenticado para ver las movies (dependencies=[Depends(BearerJWT())])
 def get_movies():
-        return JSONResponse(content=movies)
+    return JSONResponse(content=movies)
 
 @app.get('/movies/{id}', tags=['Movies'])
 def get_movie(id: int = Path(ge=1, le=100)):
@@ -96,7 +100,7 @@ def get_movies_by_category(category: str = Query(min_length=5, max_length=50)):
 def create_movie(movie: Movie):
     #asignar un id unico automaticamente
     new_id = len(movies)+1
-    movie_dict = movie.model_dump() #convertir el objeto movie a diccionario
+    movie_dict = movie.dict() #convertir el objeto movie a diccionario
     movie_dict["id"] = new_id
     movies.append(movie_dict)
     print(movie_dict)
@@ -108,7 +112,7 @@ def create_movie(movie: Movie):
 def update_movie(id: int, movie: Movie):
     for item in movies:
         if item['id'] == id:
-            item.update(movie.model_dump())
+            item.update(moviedict())
             return JSONResponse(content={'message': 'Se ha modificado la película', 'movie': item})
     raise HTTPException(status_code=404, detail="Pelicula no encontrada")
 
