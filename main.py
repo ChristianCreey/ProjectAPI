@@ -7,8 +7,7 @@ from typing import Optional
 from user_jwt import createToken, validateToken
 from fastapi.security import HTTPBearer
 from db.movie_db import Session, engine, Base
-from models.movie_models import Movie
-
+from models.movie_models import Movie as MovieModel
 
 
 app = FastAPI(

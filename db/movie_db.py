@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm.session import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-sqliteName = 'movie.sqlite'
+sqliteName = 'movies.sqlite'
 basedir = os.path.dirname(os.path.realpath(__file__))
 databaseurl = f"sqlite:///{os.path.join(basedir, sqliteName)}"
 

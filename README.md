@@ -42,3 +42,20 @@
 
     docker run -p 4000:4000 projectapi
     docker run -it --rm -p 4000:4000 projectapi
+
+
+
+
+
+
+evitar a toda costa ejecutar contenedores como root
+
+utilizar compilaciones de varias etapas para construir imagenes mas pequeñas ----
+
+no exponer puertos ineccesarios
+
+utilizar imagenes con los ultimos parches de seguridad
+
+actualizar la imagen base
+
+restringir cuotas de recurso (CPU Y Memoria) docker stats ----
