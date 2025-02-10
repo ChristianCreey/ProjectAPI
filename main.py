@@ -118,21 +118,28 @@ def create_movie(movie: Movie):
 #Metodo put
 @app.put('/movies/{id}', tags=['Movies'], status_code=200)
 def update_movie(id: int, movie: Movie):
-    for item in movies:
-        if item['id'] == id:
-            item.update(moviedict())
-            return JSONResponse(content={'message': 'Se ha modificado la película', 'movie': item})
-    raise HTTPException(status_code=404, detail="Pelicula no encontrada")
+    db = Session()
+    data = db.query(MovieModel).filter(MovieModel.id == id).first()
+    if not data:
+        return JSONResponse(status_code=404, content={'message':'Pelicula no encontrada'})
+    data.title = movie.title
+    data.overview = movie.overview
+    data.year = movie.year
+    data.rating = movie.rating
+    data.category = movie.category
+    db.commit()
+    return JSONResponse(status_code=200, content={'message':'se ha actualizado la pelicula', 'movies':jsonable_encoder(data)})
 
 #metodo delete
 @app.delete('/movies/{id}', tags=['Movies'], status_code=200)
 def delete_movie(id: int):
-    for item in movies:
-        if item['id'] == id:
-            movies.remove(item)
-            print(movies)
-            return JSONResponse(content={'message':'se ha eliminado la pelicula'})
-    raise HTTPException(status_code=404, detail="Pelicula no encontrada")
+    db = Session()
+    data = db.query(MovieModel).filter(MovieModel.id == id).first()
+    if not data:
+        return JSONResponse(status_code=404, content={'message':'Pelicula no encontrada'})
+    db.delete(data)
+    db.commit()
+    return JSONResponse(status_code=200, content={'message':'se ha eliminado la pelicula', 'movies':jsonable_encoder(data)})
 
 
 #esquema de validacion
