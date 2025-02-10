@@ -10,5 +10,6 @@ __pycache__/
 # files
 Dockerfile
 docker-compose.yml
+movies.sqlite
 
 # Keys

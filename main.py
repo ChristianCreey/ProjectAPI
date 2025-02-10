@@ -16,7 +16,9 @@ app = FastAPI(
     version='0.0.1',
 )
 
+print("Creando tablas en la base de datos...")
 Base.metadata.create_all(bind=engine)
+
 
 #security = HTTPBearer()
 
