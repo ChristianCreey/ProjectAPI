@@ -8,6 +8,7 @@ from user_jwt import createToken, validateToken
 from fastapi.security import HTTPBearer
 from db.movie_db import Session, engine, Base
 from models.movie_models import Movie as MovieModel
+from fastapi.encoders import jsonable_encoder
 
 
 app = FastAPI(
@@ -32,11 +33,11 @@ class BearerJWT(HTTPBearer):
         return auth
  
 class User(BaseModel):
-    email: str = Field(default='correo@email.com')
-    password: str = Field(default="**********")
+    email: str = Field(default='ccreey@outlook.es')
+    password: str = Field(default="12345")
 
 class Movie(BaseModel):
-    id: Optional[int] = None
+    #id: Optional[int] = None
     title: str = Field(default='Titulo de la pelicula', min_length=5, max_length=50)
     overview: str = Field(default='Descripcion de la pelicula', min_length=5, max_length=500)
     year: int = Field(default=2000)
@@ -78,14 +79,19 @@ def read_root():
 
 @app.get('/movies', tags=['Movies'], dependencies=[Depends(BearerJWT())]) #colocar en las funciones que queramos que este autenticado para ver las movies (dependencies=[Depends(BearerJWT())])
 def get_movies():
-    return JSONResponse(content=movies)
+    db = Session()
+    data = db.query(MovieModel).all()
+    db.close()
+    return JSONResponse(content=jsonable_encoder(data))
 
 @app.get('/movies/{id}', tags=['Movies'])
 def get_movie(id: int = Path(ge=1, le=100)):
-    for item in movies:
-        if item["id"] == id:
-            return item
-    raise HTTPException(status_code=404, detail="Película no encontrada")
+    db = Session()
+    data = db.query(MovieModel).filter(MovieModel.id == id).first()
+    if not data:
+        return JSONResponse(status_code=404, content={'message':'Pelicula no encontrada'})
+    db.close()
+    return JSONResponse(status_code=200, content=jsonable_encoder(data))
 
 
 #PARAMETROS QUERY
@@ -99,13 +105,14 @@ def get_movies_by_category(category: str = Query(min_length=5, max_length=50)):
 #Metodo post
 @app.post('/movies', tags=['Movies'], status_code=201)
 def create_movie(movie: Movie):
-    #asignar un id unico automaticamente
-    new_id = len(movies)+1
-    movie_dict = movie.dict() #convertir el objeto movie a diccionario
-    movie_dict["id"] = new_id
-    movies.append(movie_dict)
-    print(movie_dict)
-    return JSONResponse(status_code=201, content={'message':'se ha cargado una nueva pelicula', 'movies':movie_dict})
+    db =  Session()
+    newMovie = MovieModel(**movie.dict())
+    db.add(newMovie)
+    db.commit()
+    print(f"db: {db}")
+    db.refresh(newMovie)
+    db.close()
+    return JSONResponse(status_code=201, content={'message':'se ha cargado una nueva pelicula', 'movies':jsonable_encoder(newMovie)})
     #return JSONResponse(status_code=201, content={'message':'se ha cargado una nueva pelicula', 'movie':[movies.dict() for movie in movies]})
 
 #Metodo put

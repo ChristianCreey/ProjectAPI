@@ -11,5 +11,6 @@ __pycache__/
 Dockerfile
 docker-compose.yml
 movies.sqlite
+otro.md
 
 # Keys
