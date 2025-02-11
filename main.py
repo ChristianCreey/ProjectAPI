@@ -98,8 +98,10 @@ def get_movie(id: int = Path(ge=1, le=100)):
 #BUSQUEDA POR CATEGORIA
 @app.get('/movies/category', tags=['Movies'])
 def get_movies_by_category(category: str = Query(min_length=5, max_length=50)):
-    #return category
-    return JSONResponse(content=[movie for movie in movies if movie['category'].lower() == category.lower()])
+    db = Session()
+    data = db.query(MovieModel).filter(MovieModel.category == category).all()
+    return JSONResponse(status_code=200, content=jsonable_encoder(data))
+    #return JSONResponse(content=[movie for movie in movies if movie['category'].lower() == category.lower()])
 
 
 #Metodo post
